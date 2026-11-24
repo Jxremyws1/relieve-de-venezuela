@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glosario Digital — Geografía Física de Venezuela</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            selva: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            tepuy: {
+              50: '#fdf8f6',
+              100: '#f2e8e5',
+              600: '#b45309',
+              700: '#92400e',
+              800: '#78350f',
+            },
+            orinoco: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+            }
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased selection:bg-emerald-200 selection:text-emerald-950 min-h-screen flex flex-col">
+
+  <!-- Barra de notificación Toast (sin alert()) -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-stone-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-stone-700/80">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+      <span id="toast-msg" class="text-sm font-medium">Ficha copiada al portapapeles</span>
+    </div>
+  </div>
+
+  <!-- Encabezado Hero inspirado en la geografía venezolana -->
+  <header class="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-teal-900 to-sky-950 text-white border-b border-emerald-800/40">
+    <!-- Patrón topográfico decorativo SVG -->
+    <svg class="absolute inset-0 w-full h-full opacity-10 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="topo" width="120" height="120" patternUnits="userSpaceOnUse">
+          <path d="M0 60 Q 30 20, 60 60 T 120 60" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M0 90 Q 30 50, 60 90 T 120 90" fill="none" stroke="currentColor" stroke-width="1"/>
+          <path d="M0 30 Q 30 -10, 60 30 T 120 30" fill="none" stroke="currentColor" stroke-width="1"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#topo)"/>
+    </svg>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-11">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-300/30 text-amber-200 text-xs font-semibold tracking-wide uppercase mb-3">
+            <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+            Geografía Física • Venezuela
+          </div>
+          <h1 class="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Glosario Digital del Relieve, Clima e Hidrografía
+          </h1>
+          <p class="mt-2.5 text-sm sm:text-base text-emerald-100/85 leading-relaxed">
+            Consulta interactiva organizada alfabéticamente con los conceptos fundamentales de la geomorfología, pisos climáticos y cuencas hidrográficas de Venezuela.
+          </p>
+        </div>
+
+        <!-- Tarjeta resumen de progreso de estudio -->
+        <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 sm:p-5 flex items-center gap-4 shrink-0 self-start lg:self-center">
+          <div class="w-12 h-12 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center text-amber-300">
+            <i data-lucide="bookmark-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wider text-emerald-200/80 font-semibold">Términos estudiados</p>
+            <div class="flex items-baseline gap-2 mt-0.5">
+              <span id="studied-count" class="text-2xl font-display font-bold text-white">0</span>
+              <span class="text-sm text-emerald-200/80">de 28 conceptos</span>
+            </div>
+            <button id="toggle-only-studied" type="button" class="mt-1.5 text-xs font-medium text-amber-300 hover:text-amber-200 underline underline-offset-2 transition">
+              Ver solo marcados
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Panel de Controles: Buscador, Categorías y Abecedario -->
+  <section class="sticky top-0 z-30 bg-stone-50/95 backdrop-blur-md border-b border-stone-200/90 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-3.5">
+      
+      <!-- Fila 1: Buscador + Selector de Vista -->
+      <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div class="relative flex-1 max-w-2xl">
+          <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Buscar término, definición o ejemplo (ej. Tepuy, Orinoco, ZCIT, Llanos)..."
+            class="w-full pl-10 pr-10 py-2.5 bg-white border border-stone-300 rounded-xl text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 transition shadow-xs"
+          />
+          <button
+            id="clear-search"
+            type="button"
+            aria-label="Limpiar búsqueda"
+            class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-1 rounded-lg"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Contador y botones de vista -->
+        <div class="flex items-center justify-between sm:justify-end gap-3">
+          <span class="text-xs sm:text-sm font-medium text-stone-600 bg-stone-200/70 px-3 py-1.5 rounded-xl">
+            Mostrando <strong id="visible-count" class="text-stone-900">28</strong> de 28
+          </span>
+
+          <div class="inline-flex rounded-xl bg-stone-200/80 p-1 border border-stone-300/60" role="group" aria-label="Cambiar vista">
+            <button
+              id="btn-grid"
+              type="button"
+              title="Vista en cuadrícula"
+              class="p-2 rounded-lg bg-white text-emerald-800 shadow-xs transition flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <i data-lucide="layout-grid" class="w-4 h-4"></i>
+              <span class="hidden md:inline">Cuadrícula</span>
+            </button>
+            <button
+              id="btn-list"
+              type="button"
+              title="Vista en lista"
+              class="p-2 rounded-lg text-stone-600 hover:text-stone-900 transition flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <i data-lucide="list" class="w-4 h-4"></i>
+              <span class="hidden md:inline">Lista</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 2: Filtros por categoría -->
+      <div id="category-filters" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <!-- Generado dinámicamente por JS -->
+      </div>
+
+      <!-- Fila 3: Índice Alfabético A - Z -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 border-t border-stone-200/70">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-stone-400 mr-1 shrink-0">Índice:</span>
+        <div id="alphabet-bar" class="flex items-center gap-1">
+          <!-- Generado dinámicamente por JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contenido Principal: Tarjetas del Glosario -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <!-- Estado vacío si no hay coincidencias -->
+    <div id="empty-state" class="hidden text-center py-16 px-4 bg-white rounded-3xl border border-stone-200 shadow-xs">
+      <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="search-x" class="w-7 h-7"></i>
+      </div>
+      <h2 class="font-display text-lg font-bold text-stone-800">No se encontraron términos</h2>
+      <p class="text-sm text-stone-500 mt-1 max-w-md mx-auto">
+        No hay conceptos que coincidan con los filtros o la búsqueda actual. Prueba limpiando los filtros para ver los 28 términos.
+      </p>
+      <button
+        id="reset-all-btn"
+        type="button"
+        class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold transition shadow-xs"
+      >
+        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+        Restablecer filtros
+      </button>
+    </div>
+
+    <!-- Contenedor de tarjetas -->
+    <div id="glossary-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Tarjetas generadas dinámicamente -->
+    </div>
+  </main>
+
+  <!-- Pie de página -->
+  <footer class="bg-white border-t border-stone-200 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+        <span>Glosario Digital de Geografía de Venezuela • Orden Alfabético (A–Z)</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button id="copy-all-btn" type="button" class="inline-flex items-center gap-1.5 text-stone-600 hover:text-emerald-700 font-medium transition">
+          <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+          Copiar glosario completo
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // =========================================================================
+    // 1. BASE DE DATOS DEL GLOSARIO (28 términos en estricto orden alfabético)
+    // =========================================================================
+    const GLOSSARY_DATA = [
+      {
+        id: 1,
+        term: "Afluente",
+        category: "Hidrografía",
+        definition: "Río o curso de agua secundario que desemboca en un río principal, aportándole su caudal.",
+        examples: "Río Caroní y río Apure (ambos afluentes clave del río Orinoco)."
+      },
+      {
+        id: 2,
+        term: "Altiplanicie",
+        category: "Mesetas",
+        definition: "Meseta extensa ubicada a gran altitud sobre el nivel del mar, rodeada generalmente por cadenas montañosas o escarpes.",
+        examples: "Sectores altos de la Gran Sabana y altiplanicies andinas."
+      },
+      {
+        id: 3,
+        term: "Caño",
+        category: "Hidrografía",
+        definition: "Brazo estrecho de río, canal natural o curso de agua de corriente lenta y poca profundidad, muy común en llanuras bajas y zonas deltaicas.",
+        examples: "Caño Manamo y Caño Macareo en el Delta del Orinoco."
+      },
+      {
+        id: 4,
+        term: "Clima semiárido / árido",
+        category: "Diversidad Climática",
+        definition: "Tipo climático caracterizado por precipitaciones escasas e irregulares, alta evaporación y vegetación xerófila adaptada a la sequía (cardones, tunas y cujíes).",
+        examples: "Península de Paraguaná (Falcón), depresión de Quíbor (Lara) y litoral de Sucre."
+      },
+      {
+        id: 5,
+        term: "Clima tropical lluvioso / de sabana",
+        category: "Diversidad Climática",
+        definition: "Clima predominante en gran parte del territorio venezolano, con temperaturas cálidas todo el año y dos estaciones marcadas: período lluvioso y período seco.",
+        examples: "Región de Los Llanos, gran parte de Guayana y valles centrales."
+      },
+      {
+        id: 6,
+        term: "Cordillera",
+        category: "Sistema Montañoso",
+        definition: "Cadena extensa de montañas conectadas entre sí, originada por plegamientos o fallas tectónicas de la corteza terrestre.",
+        examples: "Cordillera de los Andes (Mérida y Perijá) y Cordillera de la Costa."
+      },
+      {
+        id: 7,
+        term: "Cuenca hidrográfica",
+        category: "Hidrografía",
+        definition: "Territorio natural delimitado por divisorias de aguas cuyas corrientes superficiales drenan hacia un mismo río principal, lago o mar.",
+        examples: "Cuenca del río Orinoco, Cuenca del Lago de Maracaibo y Cuenca del río Cuyuní."
+      },
+      {
+        id: 8,
+        term: "Delta",
+        category: "Hidrografía",
+        definition: "Accidente geográfico formado en la desembocadura de un río cuando los sedimentos se acumulan y dividen el cauce en múltiples brazos o caños que originan islas.",
+        examples: "Delta del Orinoco (estados Delta Amacuro y Monagas)."
+      },
+      {
+        id: 9,
+        term: "Embalse",
+        category: "Hidrografía",
+        definition: "Depósito de agua creado artificialmente mediante la construcción de una represa sobre el cauce de un río para generación hidroeléctrica, riego o abastecimiento urbano.",
+        examples: "Embalse de Guri (río Caroní), Embalse de Camatagua y Embalse de Uribante-Caparo."
+      },
+      {
+        id: 10,
+        term: "Falla geológica",
+        category: "Sistema Montañoso",
+        definition: "Fractura en la corteza terrestre a lo largo de la cual se desplazan bloques rocosos, asociada a actividad sísmica y levantamiento de sistemas montañosos.",
+        examples: "Falla de Boconó (Andes), Falla de San Sebastián (Costa) y Falla de El Pilar (Oriente)."
+      },
+      {
+        id: 11,
+        term: "Llanos Altos",
+        category: "Llanuras",
+        definition: "Sector de los Llanos más cercano al piedemonte andino y costero (por encima de los 100 m s. n. m.), con mejor drenaje, suelos más firmes y menor riesgo de inundación.",
+        examples: "Piedemonte y llanuras altas de Barinas, Portuguesa y Cojedes."
+      },
+      {
+        id: 12,
+        term: "Llanos Bajos",
+        category: "Llanuras",
+        definition: "Sector más plano y de menor altitud (debajo de los 100 m s. n. m.), atravesado por ríos meándricos y propenso a inundaciones estacionales durante las lluvias.",
+        examples: "Llanuras inundables del estado Apure y sur de Guárico."
+      },
+      {
+        id: 13,
+        term: "Llanura / Planicie",
+        category: "Llanuras",
+        definition: "Extensión amplia de terreno plano o con ondulaciones muy suaves y escasa pendiente, formada generalmente por acumulación de sedimentos.",
+        examples: "Planicie del Lago de Maracaibo y planicies aluviales de los Llanos."
+      },
+      {
+        id: 14,
+        term: "Los Llanos",
+        category: "Llanuras",
+        definition: "Gran región fisiográfica de llanuras aluviales y sabanas ubicada entre los sistemas montañosos del norte/occidente y el río Orinoco.",
+        examples: "Llanos Occidentales (Apure, Barinas, Portuguesa), Centrales (Guárico, Cojedes) y Orientales (Anzoátegui, Monagas)."
+      },
+      {
+        id: 15,
+        term: "Macizo",
+        category: "Sistema Montañoso",
+        definition: "Bloque montañoso compacto, sólido y resistente, con laderas pronunciadas y origen tectónico o cristalino muy antiguo.",
+        examples: "Macizo Guayanés (Escudo Guayanés) y Macizo del Turimiquire."
+      },
+      {
+        id: 16,
+        term: "Meseta / Mesa",
+        category: "Mesetas",
+        definition: "Superficie elevada y relativamente plana en su cima, delimitada por bordes escarpados o laderas que descienden bruscamente hacia zonas más bajas.",
+        examples: "Mesa de Guanipa (Anzoátegui) y mesas orientales de Monagas."
+      },
+      {
+        id: 17,
+        term: "Microclima",
+        category: "Diversidad Climática",
+        definition: "Conjunto de condiciones atmosféricas locales particulares de un espacio reducido (un valle, ladera o bosque) que difieren del clima general de la región.",
+        examples: "Colonia Tovar (Aragua), Galipán (El Ávila) y valles altos de Mérida."
+      },
+      {
+        id: 18,
+        term: "Pico / Cumbre",
+        category: "Sistema Montañoso",
+        definition: "Punto topográfico más alto y puntiagudo de una montaña o macizo cordillerano.",
+        examples: "Pico Bolívar (4.978 m), Pico Humboldt y Pico Naiguatá."
+      },
+      {
+        id: 19,
+        term: "Piedemonte",
+        category: "Llanuras",
+        definition: "Franja de transición suave ubicada en la base o pie de una montaña, formada por abanicos aluviales y sedimentos arrastrados desde las alturas.",
+        examples: "Piedemonte andino-llanero (Barinas, Táchira y Portuguesa)."
+      },
+      {
+        id: 20,
+        term: "Pisos climáticos / Pisos térmicos",
+        category: "Diversidad Climática",
+        definition: "Escala de variación de la temperatura, presión y vegetación según la altitud: Tropical (0–800 m), Templado (800–2.000 m), Frío (2.000–3.000 m), Páramo (3.000–4.700 m) y Helado (>4.700 m).",
+        examples: "Gradiente altitudinal desde las costas de Vargas hasta el Pico Bolívar en Mérida."
+      },
+      {
+        id: 21,
+        term: "Río",
+        category: "Hidrografía",
+        definition: "Corriente natural y continua de agua dulce que fluye por un cauce definido desde zonas elevadas hacia otro río, un lago o el mar.",
+        examples: "Río Orinoco (2.140 km), río Caroní, río Apure y río Meta."
+      },
+      {
+        id: 22,
+        term: "Sabana",
+        category: "Llanuras",
+        definition: "Ecosistema de llanura dominado por vegetación herbácea (gramíneas) con árboles y palmas dispersas, adaptado a la alternancia entre sequía y lluvias.",
+        examples: "Sabanas de Apure, sabanas de Guárico y la Gran Sabana (Bolívar)."
+      },
+      {
+        id: 23,
+        term: "Salto / Cascada",
+        category: "Hidrografía",
+        definition: "Caída brusca y vertical de una corriente de agua al salvar un desnivel pronunciado o el borde escarpado de una meseta.",
+        examples: "Salto Ángel / Kerepakupai Vená (979 m, caída más alta del mundo), Salto El Sapo y Salto La Llovizna."
+      },
+      {
+        id: 24,
+        term: "Sierra",
+        category: "Sistema Montañoso",
+        definition: "Cadena montañosa de menor extensión longitudinal que una cordillera, caracterizada por cumbres alineadas y perfil recortado.",
+        examples: "Sierra Nevada de Mérida, Sierra de Perijá y Sierra de San Luis (Falcón)."
+      },
+      {
+        id: 25,
+        term: "Tepuy",
+        category: "Mesetas",
+        definition: "Meseta tabular de roca arenisca del Precámbrico con paredes casi verticales y cima plana o ligeramente inclinada, exclusiva del Escudo Guayanés.",
+        examples: "Auyantepuy, Monte Roraima, Kukenan y macizo del Chimantá."
+      },
+      {
+        id: 26,
+        term: "Valle",
+        category: "Sistema Montañoso",
+        definition: "Depresión alargada entre vertientes montañosas, modelada por la erosión fluvial o tectónica, con suelos fértiles aptos para agricultura y ciudades.",
+        examples: "Valle de Caracas, Valle de Mérida y Valle de Aragua."
+      },
+      {
+        id: 27,
+        term: "Vertiente",
+        category: "Hidrografía",
+        definition: "Conjunto de cuencas hidrográficas cuyas aguas desembocan en un mismo mar, océano o cuenca cerrada.",
+        examples: "Vertiente del Atlántico (Orinoco), Vertiente del Mar Caribe y cuenca endorreica del Lago de Valencia."
+      },
+      {
+        id: 28,
+        term: "Zona de Convergencia Intertropical (ZCIT)",
+        category: "Diversidad Climática",
+        definition: "Franja atmosférica cercana al ecuador donde confluyen los vientos alisios del noreste y del sureste; su desplazamiento anual regula la temporada de lluvias en Venezuela.",
+        examples: "Responsable de las lluvias entre mayo y noviembre en los Llanos y Guayana."
+      }
+    ];
+
+    // =========================================================================
+    // 2. CONFIGURACIÓN DE CATEGORÍAS Y PALETA VISUAL
+    // =========================================================================
+    const CATEGORIES = [
+      {
+        name: "Todos",
+        icon: "layers",
+        activeClass: "bg-stone-900 text-white border-stone-900 shadow-xs",
+        idleClass: "bg-white text-stone-700 border-stone-300 hover:bg-stone-100"
+      },
+      {
+        name: "Sistema Montañoso",
+        icon: "mountain",
+        badgeClass: "bg-amber-100 text-amber-900 border-amber-200",
+        dotClass: "bg-amber-600",
+        activeClass: "bg-amber-700 text-white border-amber-700 shadow-xs",
+        idleClass: "bg-white text-amber-900 border-amber-200 hover:bg-amber-50"
+      },
+      {
+        name: "Llanuras",
+        icon: "trees",
+        badgeClass: "bg-emerald-100 text-emerald-900 border-emerald-200",
+        dotClass: "bg-emerald-600",
+        activeClass: "bg-emerald-700 text-white border-emerald-700 shadow-xs",
+        idleClass: "bg-white text-emerald-900 border-emerald-200 hover:bg-emerald-50"
+      },
+      {
+        name: "Mesetas",
+        icon: "landmark",
+        badgeClass: "bg-orange-100 text-orange-900 border-orange-200",
+        dotClass: "bg-orange-600",
+        activeClass: "bg-orange-700 text-white border-orange-700 shadow-xs",
+        idleClass: "bg-white text-orange-900 border-orange-200 hover:bg-orange-50"
+      },
+      {
+        name: "Diversidad Climática",
+        icon: "sun-snow",
+        badgeClass: "bg-teal-100 text-teal-900 border-teal-200",
+        dotClass: "bg-teal-600",
+        activeClass: "bg-teal-700 text-white border-teal-700 shadow-xs",
+        idleClass: "bg-white text-teal-900 border-teal-200 hover:bg-teal-50"
+      },
+      {
+        name: "Hidrografía",
+        icon: "waves",
+        badgeClass: "bg-sky-100 text-sky-900 border-sky-200",
+        dotClass: "bg-sky-600",
+        activeClass: "bg-sky-700 text-white border-sky-700 shadow-xs",
+        idleClass: "bg-white text-sky-900 border-sky-200 hover:bg-sky-50"
+      }
+    ];
+
+    const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    // =========================================================================
+    // 3. ESTADO DE LA APLICACIÓN
+    // =========================================================================
+    let state = {
+      search: "",
+      category: "Todos",
+      letter: "ALL",
+      viewMode: "grid", // 'grid' | 'list'
+      onlyStudied: false,
+      studiedIds: new Set(JSON.parse(localStorage.getItem("vzla_glosario_studied") || "[]"))
+    };
+
+    // =========================================================================
+    // 4. UTILIDADES
+    // =========================================================================
+    function normalizeText(str) {
+      return str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function getInitialLetter(term) {
+      return normalizeText(term).charAt(0).toUpperCase();
+    }
+
+    function saveStudied() {
+      localStorage.setItem("vzla_glosario_studied", JSON.stringify([...state.studiedIds]));
+      document.getElementById("studied-count").textContent = state.studiedIds.size;
+    }
+
+    let toastTimeout;
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toast-msg");
+      toastMsg.textContent = message;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2600);
+    }
+
+    function copyTextToClipboard(text, successMsg) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        showToast(successMsg);
+      } catch (err) {
+        showToast("No se pudo copiar el texto");
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // =========================================================================
+    // 5. RENDERIZADO DE CONTROLES (CATEGORÍAS Y ABECEDARIO)
+    // =========================================================================
+    function renderCategoryFilters() {
+      const container = document.getElementById("category-filters");
+      container.innerHTML = CATEGORIES.map((cat) => {
+        const isActive = state.category === cat.name;
+        const count = cat.name === "Todos"
+          ? GLOSSARY_DATA.length
+          : GLOSSARY_DATA.filter((item) => item.category === cat.name).length;
+
+        return `
+          <button
+            type="button"
+            data-cat="${cat.name}"
+            class="cat-btn shrink-0 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold transition cursor-pointer ${isActive ? cat.activeClass : cat.idleClass}"
+          >
+            <i data-lucide="${cat.icon}" class="w-3.5 h-3.5"></i>
+            <span>${cat.name}</span>
+            <span class="px-1.5 py-0.5 text-[11px] rounded-md ${isActive ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'}">
+              ${count}
+            </span>
+          </button>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".cat-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.category = btn.dataset.cat;
+          renderAll();
+        });
+      });
+    }
+
+    function renderAlphabetBar() {
+      const container = document.getElementById("alphabet-bar");
+
+      // Letras disponibles según categoría y búsqueda actual (sin filtrar por letra)
+      const availableLetters = new Set(
+        GLOSSARY_DATA.filter((item) => {
+          const matchesCat = state.category === "Todos" || item.category === state.category;
+          const matchesStudied = !state.onlyStudied || state.studiedIds.has(item.id);
+          const q = normalizeText(state.search.trim());
+          const matchesSearch =
+            !q ||
+            normalizeText(item.term).includes(q) ||
+            normalizeText(item.definition).includes(q) ||
+            normalizeText(item.examples).includes(q);
+          return matchesCat && matchesStudied && matchesSearch;
+        }).map((item) => getInitialLetter(item.term))
+      );
+
+      const allBtnActive = state.letter === "ALL";
+      let html = `
+        <button
+          type="button"
+          data-letter="ALL"
+          class="alpha-btn px-2.5 py-1 rounded-lg text-xs font-bold transition shrink-0 ${
+            allBtnActive
+              ? "bg-emerald-700 text-white shadow-xs"
+              : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
+          }"
+        >
+          Todas
+        </button>
+      `;
+
+      html += ALPHABET.map((letter) => {
+        const hasTerms = availableLetters.has(letter);
+        const isActive = state.letter === letter;
+
+        if (!hasTerms) {
+          return `
+            <span
+              class="w-7 h-7 inline-flex items-center justify-center rounded-lg text-xs font-medium text-stone-300 bg-stone-100/70 select-none shrink-0"
+              title="Sin términos con ${letter}"
+            >
+              ${letter}
+            </span>
+          `;
+        }
+
+        return `
+          <button
+            type="button"
+            data-letter="${letter}"
+            class="alpha-btn w-7 h-7 inline-flex items-center justify-center rounded-lg text-xs font-bold transition shrink-0 cursor-pointer ${
+              isActive
+                ? "bg-emerald-700 text-white shadow-xs ring-2 ring-emerald-600/30"
+                : "bg-white text-stone-800 border border-stone-200 hover:border-emerald-500 hover:text-emerald-700"
+            }"
+          >
+            ${letter}
+          </button>
+        `;
+      }).join("");
+
+      container.innerHTML = html;
+
+      container.querySelectorAll(".alpha-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.letter = btn.dataset.letter;
+          renderAll();
+        });
+      });
+    }
+
+    // =========================================================================
+    // 6. RENDERIZADO DE TARJETAS DEL GLOSARIO
+    // =========================================================================
+    function renderCards() {
+      const container = document.getElementById("glossary-container");
+      const emptyState = document.getElementById("empty-state");
+      const visibleCountEl = document.getElementById("visible-count");
+
+      const q = normalizeText(state.search.trim());
+
+      const filtered = GLOSSARY_DATA.filter((item) => {
+        const matchesCat = state.category === "Todos" || item.category === state.category;
+        const matchesLetter = state.letter === "ALL" || getInitialLetter(item.term) === state.letter;
+        const matchesStudied = !state.onlyStudied || state.studiedIds.has(item.id);
+        const matchesSearch =
+          !q ||
+          normalizeText(item.term).includes(q) ||
+          normalizeText(item.definition).includes(q) ||
+          normalizeText(item.examples).includes(q);
+        return matchesCat && matchesLetter && matchesStudied && matchesSearch;
+      });
+
+      visibleCountEl.textContent = filtered.length;
+
+      // Ajustar clase de contenedor según vista cuadrícula o lista
+      if (state.viewMode === "grid") {
+        container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5";
+      } else {
+        container.className = "flex flex-col gap-3.5";
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      container.innerHTML = filtered.map((item) => {
+        const catMeta = CATEGORIES.find((c) => c.name === item.category) || CATEGORIES[1];
+        const isStudied = state.studiedIds.has(item.id);
+        const initial = getInitialLetter(item.term);
+
+        if (state.viewMode === "list") {
+          return `
+            <article class="group bg-white rounded-2xl border ${isStudied ? 'border-emerald-400/80 ring-1 ring-emerald-500/20' : 'border-stone-200/90'} p-4 sm:p-5 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div class="flex items-start gap-3.5 flex-1">
+                <div class="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 font-display font-extrabold text-stone-700 flex items-center justify-center shrink-0 text-sm">
+                  ${initial}
+                </div>
+                <div class="space-y-1.5 flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="font-display text-lg font-bold text-stone-900 group-hover:text-emerald-800 transition">
+                      ${item.term}
+                    </h3>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${catMeta.badgeClass}">
+                      <span class="w-1.5 h-1.5 rounded-full ${catMeta.dotClass}"></span>
+                      ${item.category}
+                    </span>
+                  </div>
+                  <p class="text-sm text-stone-700 leading-relaxed">${item.definition}</p>
+                  <p class="text-xs text-stone-600 bg-stone-50 border border-stone-200/70 rounded-xl px-3 py-2">
+                    <strong class="text-stone-800">En Venezuela:</strong> ${item.examples}
+                  </p>
+                </div>
+              </div>
+              <div class="flex sm:flex-col items-center gap-2 shrink-0 self-end sm:self-start">
+                <button
+                  type="button"
+                  data-study-id="${item.id}"
+                  title="${isStudied ? 'Desmarcar estudiado' : 'Marcar como estudiado'}"
+                  class="study-btn px-3 py-2 rounded-xl border text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer ${
+                    isStudied
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                      : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'
+                  }"
+                >
+                  <i data-lucide="${isStudied ? 'check-circle-2' : 'circle'}" class="w-4 h-4 ${isStudied ? 'text-emerald-600' : 'text-stone-400'}"></i>
+                  <span>${isStudied ? 'Estudiado' : 'Marcar'}</span>
+                </button>
+                <button
+                  type="button"
+                  data-copy-id="${item.id}"
+                  title="Copiar ficha"
+                  class="copy-btn px-3 py-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-900 text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>Copiar</span>
+                </button>
+              </div>
+            </article>
+          `;
+        }
+
+        // Vista en Cuadrícula (por defecto)
+        return `
+          <article class="group bg-white rounded-2xl border ${isStudied ? 'border-emerald-400/90 ring-1 ring-emerald-500/20' : 'border-stone-200/90'} p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+            <div>
+              <!-- Cabecera de tarjeta -->
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${catMeta.badgeClass}">
+                  <span class="w-1.5 h-1.5 rounded-full ${catMeta.dotClass}"></span>
+                  ${item.category}
+                </span>
+                <span class="w-7 h-7 rounded-lg bg-stone-100 text-stone-500 font-display font-bold text-xs flex items-center justify-center border border-stone-200/80">
+                  ${initial}
+                </span>
+              </div>
+
+              <!-- Título del término -->
+              <h3 class="font-display text-lg font-bold text-stone-900 group-hover:text-emerald-800 transition leading-snug">
+                ${item.term}
+              </h3>
+
+              <!-- Definición -->
+              <p class="mt-2 text-sm text-stone-600 leading-relaxed">
+                ${item.definition}
+              </p>
+            </div>
+
+            <!-- Bloque inferior: Ejemplos y botones -->
+            <div class="mt-4 pt-3.5 border-t border-stone-100 space-y-3">
+              <div class="bg-stone-50/90 border border-stone-200/70 rounded-xl p-3">
+                <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-1">
+                  <i data-lucide="map-pin" class="w-3 h-3 text-amber-600"></i>
+                  Ejemplos en Venezuela
+                </div>
+                <p class="text-xs text-stone-700 leading-relaxed">
+                  ${item.examples}
+                </p>
+              </div>
+
+              <div class="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  data-study-id="${item.id}"
+                  class="study-btn flex-1 py-2 px-3 rounded-xl border text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                    isStudied
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                      : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                  }"
+                >
+                  <i data-lucide="${isStudied ? 'check-circle-2' : 'bookmark'}" class="w-3.5 h-3.5 ${isStudied ? 'text-emerald-600' : 'text-stone-400'}"></i>
+                  <span>${isStudied ? 'Estudiado' : 'Marcar estudio'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  data-copy-id="${item.id}"
+                  title="Copiar definición y ejemplos"
+                  class="copy-btn py-2 px-3 rounded-xl border border-stone-200 bg-white hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
+                >
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>Copiar</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      // Listeners de botones de estudio
+      container.querySelectorAll(".study-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.studyId);
+          if (state.studiedIds.has(id)) {
+            state.studiedIds.delete(id);
+            showToast("Término desmarcado");
+          } else {
+            state.studiedIds.add(id);
+            showToast("¡Marcado como estudiado!");
+          }
+          saveStudied();
+          renderAll();
+        });
+      });
+
+      // Listeners de botones de copiado
+      container.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.copyId);
+          const item = GLOSSARY_DATA.find((el) => el.id === id);
+          if (!item) return;
+          const formatted = `${item.term} (${item.category}): ${item.definition} Ejemplos en Venezuela: ${item.examples}`;
+          copyTextToClipboard(formatted, `Copiado: "${item.term}"`);
+        });
+      });
+    }
+
+    // =========================================================================
+    // 7. ORQUESTADOR GENERAL Y EVENTOS
+    // =========================================================================
+    function renderAll() {
+      renderCategoryFilters();
+      renderAlphabetBar();
+      renderCards();
+      lucide.createIcons();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchInput = document.getElementById("search-input");
+      const clearSearchBtn = document.getElementById("clear-search");
+      const btnGrid = document.getElementById("btn-grid");
+      const btnList = document.getElementById("btn-list");
+      const resetAllBtn = document.getElementById("reset-all-btn");
+      const toggleStudiedBtn = document.getElementById("toggle-only-studied");
+      const copyAllBtn = document.getElementById("copy-all-btn");
+
+      // Inicializar contador estudiados
+      document.getElementById("studied-count").textContent = state.studiedIds.size;
+
+      // Búsqueda en tiempo real
+      searchInput.addEventListener("input", (e) => {
+        state.search = e.target.value;
+        clearSearchBtn.classList.toggle("hidden", state.search.length === 0);
+        renderAll();
+      });
+
+      clearSearchBtn.addEventListener("click", () => {
+        state.search = "";
+        searchInput.value = "";
+        clearSearchBtn.classList.add("hidden");
+        renderAll();
+        searchInput.focus();
+      });
+
+      // Cambiar vista Cuadrícula / Lista
+      btnGrid.addEventListener("click", () => {
+        state.viewMode = "grid";
+        btnGrid.className = "p-2 rounded-lg bg-white text-emerald-800 shadow-xs transition flex items-center gap-1.5 text-xs font-semibold";
+        btnList.className = "p-2 rounded-lg text-stone-600 hover:text-stone-900 transition flex items-center gap-1.5 text-xs font-semibold";
+        renderAll();
+      });
+
+      btnList.addEventListener("click", () => {
+        state.viewMode = "list";
+        btnList.className = "p-2 rounded-lg bg-white text-emerald-800 shadow-xs transition flex items-center gap-1.5 text-xs font-semibold";
+        btnGrid.className = "p-2 rounded-lg text-stone-600 hover:text-stone-900 transition flex items-center gap-1.5 text-xs font-semibold";
+        renderAll();
+      });
+
+      // Filtro solo estudiados
+      toggleStudiedBtn.addEventListener("click", () => {
+        state.onlyStudied = !state.onlyStudied;
+        toggleStudiedBtn.textContent = state.onlyStudied ? "Mostrar todos los términos" : "Ver solo marcados";
+        renderAll();
+      });
+
+      // Restablecer filtros
+      resetAllBtn.addEventListener("click", () => {
+        state.search = "";
+        state.category = "Todos";
+        state.letter = "ALL";
+        state.onlyStudied = false;
+        searchInput.value = "";
+        clearSearchBtn.classList.add("hidden");
+        toggleStudiedBtn.textContent = "Ver solo marcados";
+        renderAll();
+      });
+
+      // Copiar glosario completo
+      copyAllBtn.addEventListener("click", () => {
+        const fullText = GLOSSARY_DATA.map(
+          (item, idx) => `${idx + 1}. ${item.term} [${item.category}]: ${item.definition} (Ejemplos: ${item.examples})`
+        ).join("\n\n");
+        copyTextToClipboard(fullText, "Glosario completo (28 términos) copiado");
+      });
+
+      // Primer render
+      renderAll();
+    });
+  </script>
+</body>
+</html>
